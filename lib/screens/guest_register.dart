@@ -15,13 +15,6 @@ class _GuestSUState extends State<GuestSU> {
   final userId = TextEditingController();
   final userPw = TextEditingController();
 
-  Future<void> findCamera() async {
-    WidgetsFlutterBinding.ensureInitialized();
-    final cameras = await availableCameras();
-    final firstCamera = cameras.first;
-
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
