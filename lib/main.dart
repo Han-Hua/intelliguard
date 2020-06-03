@@ -22,16 +22,14 @@ Future<void> main() async {
   // Obtain a list of the available cameras on the device.
   final cameras = await availableCameras();
 
-  // Get a specific camera from the list of available cameras.
-  final firstCamera = cameras.first;
   
 
-  runApp(MyApp(camera: firstCamera,));
+  runApp(MyApp(camera: cameras,));
 }
 
 class MyApp extends StatelessWidget {
 
-  final CameraDescription camera;
+  final List<CameraDescription> camera;
 
   MyApp({@required this.camera});
 
@@ -53,7 +51,8 @@ class MyApp extends StatelessWidget {
           ShowEntries.routeName:  (ctx) => ShowEntries(),
           GuestSU.routeName: (ctx) => GuestSU(),
           Startup.routeName: (ctx) => Startup(),
-          CameraScreen.routeName: (ctx) => CameraScreen(camera: camera,)
+          CameraScreen.routeName: (ctx) => CameraScreen(cameras: camera,),
+
         },
       ),
     );

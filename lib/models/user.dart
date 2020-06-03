@@ -3,13 +3,13 @@ import 'package:flutter/material.dart';
 
 class User with ChangeNotifier{
   String userName;
-  String photoPath;
+  List<String> paths;
   int contact;
   String role;
 
   User({
     this.userName,
-    this.photoPath,
+    this.paths,
     this.contact,
     this.role
   });
@@ -23,13 +23,18 @@ class Users with ChangeNotifier{
     return newUser;
   }
 
-  bool addImage(String path){
-    newUser.photoPath = path;
+  bool addPaths(List<String> paths){
+    newUser.paths = new List<String>();
+    newUser.paths.addAll(paths);
     return true;
   }
 
   void addDetails(name, contact){
     newUser.userName = name;
     newUser.contact = contact;
+  }
+
+  void dispose(){
+    newUser.dispose();
   }
 }

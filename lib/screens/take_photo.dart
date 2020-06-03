@@ -1,46 +1,50 @@
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
+import 'package:intelliguard/screens/guest_register.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:async';
 import 'dart:io';
+import 'dart:math' as math;
+import 'package:provider/provider.dart';
+import '../models/user.dart';
 
 class CameraScreen extends StatefulWidget {
-  final CameraDescription camera;
+  final List<CameraDescription> cameras;
 
   static const routeName = '/take_picture';
 
   const CameraScreen({
     Key key,
-    @required this.camera,
+    @required this.cameras,
   }) : super(key: key);
 
   @override
   _CameraScreenState createState() => _CameraScreenState();
 }
 
-class _CameraScreenState extends State<CameraScreen> {
+class _CameraScreenState extends State<CameraScreen>
+    with TickerProviderStateMixin{
+
+  AnimationController controller;
   CameraController _controller;
   Future<void> _initializeControllerFuture;
-
-  IconData getCameraLensIcon(CameraLensDirection direction) {
-    switch (direction) {
-      case CameraLensDirection.back:
-        return Icons.camera_rear;
-      case CameraLensDirection.front:
-        return Icons.camera_front;
-      case CameraLensDirection.external:
-        return Icons.camera;
-    }
-    throw ArgumentError('Unknown lens direction');
-  }
+  List<CameraDescription> cameras;
+  CameraDescription firstCamera;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    _controller = CameraController(widget.camera, ResolutionPreset.ultraHigh);
+    cameras = widget.cameras;
+    firstCamera = cameras[1];
+    _controller = CameraController(firstCamera, ResolutionPreset.high);
     _initializeControllerFuture = _controller.initialize();
+
+    controller = AnimationController(
+      vsync: this,
+      duration: Duration(seconds: 15),
+    );
   }
 
   @override
@@ -59,108 +63,170 @@ class _CameraScreenState extends State<CameraScreen> {
       // Wait until the controller is initialized before displaying the
       // camera preview. Use a FutureBuilder to display a loading spinner
       // until the controller has finished initializing.
-      body: Stack(
-        children: <Widget>[
-          Container(
-            child: Padding(
-              padding: EdgeInsets.all(1.0),
-              child: Center(
-                child: FutureBuilder<void>(
-                  future: _initializeControllerFuture,
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.done) {
-                      // If the Future is complete, display the preview.
-                      return CameraPreview(_controller);
-                    } else {
-                      // Otherwise, display a loading indicator.
-                      return Center(child: CircularProgressIndicator());
-                    }
-                  },
+      body: AnimatedBuilder(
+        animation: controller,
+        builder: (context,child){
+          return Stack(
+            children: <Widget>[
+              Positioned(
+                child: Container(
+                  child: Padding(
+                    padding: EdgeInsets.all(1.0),
+                    child: Center(
+                      child: FutureBuilder<void>(
+                        future: _initializeControllerFuture,
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState == ConnectionState.done) {
+                            // If the Future is complete, display the preview.
+                            return CameraPreview(_controller);
+                          } else {
+                            // Otherwise, display a loading indicator.
+                            return Center(child: CircularProgressIndicator());
+                          }
+                        },
+                      ),
+                    ),
+                  ),
                 ),
               ),
-            ),
-          ),
-          Center(
-            child: Container(
-              child: Center(child: Text('Hello')),
-              width: 100.0,
-              height: 100.0,
-            ),
-          ),
-        ],
+              Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Expanded(
+                      child: Align(
+                        alignment: FractionalOffset.center,
+                        child: AspectRatio(
+                          aspectRatio: 1.0,
+                          child: Stack(
+                            children: <Widget>[
+                              Positioned.fill(
+                                child: CustomPaint(
+                                    painter: CustomTimerPainter(
+                                      animation: controller,
+                                      backgroundColor: Colors.white.withOpacity(0),
+                                      color: Colors.grey.withOpacity(0.7),
+                                    )),
+                              ),
+                              Align(
+                                alignment: FractionalOffset.center,
+                                child: Column(
+                                  mainAxisAlignment:
+                                  MainAxisAlignment.spaceEvenly,
+                                  crossAxisAlignment:
+                                  CrossAxisAlignment.center,
+                                  children: <Widget>[
+                                    Text(
+                                      "Rotate face following the circle",
+                                      style: TextStyle(
+                                          fontSize: 20.0,
+                                          color: Colors.white),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            ],
+          );
+        }
       ),
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.camera_alt),
-        onPressed: () async {
-          // Take the Picture in a try / catch block. If anything goes wrong,
-          // catch the error.
-          try {
-            // Ensure that the camera is initialized.
-            await _initializeControllerFuture;
 
-            List<String> paths = new List<String>();
+      floatingActionButton: AnimatedBuilder(
+        animation: controller,
+        builder: (context, child) {
+          return FloatingActionButton(
+            child: Icon(Icons.camera_alt),
+            onPressed: () async {
+              if (controller.isAnimating)
+                controller.stop();
+              else {
+                controller.reverse(
+                    from: controller.value == 0.0
+                        ? 1.0
+                        : controller.value);
+              }
+              // Take the Picture in a try / catch block. If anything goes wrong,
+              // catch the error.
+              try {
+                // Ensure that the camera is initialized.
+                await _initializeControllerFuture;
 
-            for (int i = 0; i < 20; i++) {
-              // Construct the path where the image should be saved using the
-              // pattern package.
-              final path = join(
-                // Store the picture in the temp directory.
-                // Find the temp directory using the `path_provider` plugin.
-                (await getTemporaryDirectory()).path,
-                //'${DateTime.now()}.png',
-                '${DateTime.now()},($i)',
-              );
-              print(path);
+                List<String> paths = new List<String>();
 
-              // Attempt to take a picture and log where it's been saved.
-              await _controller.takePicture(path);
+                while (controller.isAnimating){
+                  // Construct the path where the image should be saved using the
+                  // pattern package.
+                  final path = join(
+                    // Store the picture in the temp directory.
+                    // Find the temp directory using the `path_provider` plugin.
+                    (await getTemporaryDirectory()).path,
+                    //'${DateTime.now()}.png',
+                    '${DateTime.now()}',
+                  );
+                  print(path);
 
-              paths.add(path);
-            }
+                  // Attempt to take a picture and log where it's been saved.
+                  await _controller.takePicture(path);
 
-            // If the picture was taken, display it on a new screen.
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => DisplayPictureScreen(imagePath: paths),
-              ),
-            );
-          } catch (e) {
-            // If an error occurs, log the error to the console.
-            print(e);
-          }
-        },
+                  paths.add(path);
+                }
+
+                final users = Provider.of<Users>(context, listen: false);
+                bool addComplete = users.addPaths(paths);
+                // If the picture was taken, display it on a new screen.
+                if(addComplete){
+                  Navigator.of(context).pop();
+                }
+              } catch (e) {
+                // If an error occurs, log the error to the console.
+                print(e);
+              }
+            },
+          );
+        }
       ),
     );
   }
 }
 
-// A widget that displays the picture taken by the user.
-class DisplayPictureScreen extends StatelessWidget {
-  final List<String> imagePath;
 
-  const DisplayPictureScreen({Key key, this.imagePath}) : super(key: key);
+class CustomTimerPainter extends CustomPainter {
+  CustomTimerPainter({
+    this.animation,
+    this.backgroundColor,
+    this.color,
+  }) : super(repaint: animation);
 
-  Widget _buildGrid() {
-    return GridView.count(
-      crossAxisCount: 5,
-      children: List.generate(imagePath.length, (index) {
-        return Center(
-          child: Image.file(File(imagePath.elementAt(index))),
-        );
-      }),
-    );
+  final Animation<double> animation;
+  final Color backgroundColor, color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    Paint paint = Paint()
+      ..color = backgroundColor
+      ..strokeWidth = 10.0
+      ..strokeCap = StrokeCap.butt
+      ..style = PaintingStyle.stroke;
+
+    canvas.drawCircle(size.center(Offset.zero), size.width / 2.0, paint);
+    paint.color = color;
+    double progress = (1.0 - animation.value) * 2 * math.pi;
+    canvas.drawArc(Offset.zero & size, math.pi * 1.5, -progress, false, paint);
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('Display the Picture')),
-      // The image is stored as a file on the device. Use the `Image.file`
-      // constructor with the given path to display the image.
-      body: Container(
-        child: _buildGrid(),
-      ),
-    );
+  bool shouldRepaint(CustomTimerPainter old) {
+    return animation.value != old.animation.value ||
+        color != old.color ||
+        backgroundColor != old.backgroundColor;
   }
 }
+

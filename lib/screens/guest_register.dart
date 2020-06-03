@@ -14,6 +14,7 @@ class GuestSU extends StatefulWidget {
 class _GuestSUState extends State<GuestSU> {
   final userId = TextEditingController();
   final userPw = TextEditingController();
+  final contact = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -34,9 +35,20 @@ class _GuestSUState extends State<GuestSU> {
           ),
           Center(
               child: ListView(
+            shrinkWrap: true,
+            padding: EdgeInsets.only(left: 30, right: 30),
             children: <Widget>[
+              Image.asset(
+                'images/white_logo.png',
+                height: 200,
+                width: 200,
+                fit: BoxFit.fitWidth,
+              ),
+              SizedBox(
+                height: 36.0,
+              ),
               RaisedButton(
-                child: Text("Pick images"),
+                child: Text("Register Face"),
                 onPressed: () async {
                   Navigator.of(context).pushNamed(CameraScreen.routeName);
                 },
@@ -45,12 +57,12 @@ class _GuestSUState extends State<GuestSU> {
                 ),
                 color: Colors.blueGrey[200],
               ),
-              SizedBox(height: 30.0),
+              SizedBox(height: 36.0),
               TextFormField(
                 controller: userId,
                 autofocus: false,
                 decoration: InputDecoration(
-                  hintText: 'Staff Name',
+                  hintText: 'Name',
                   contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
                   border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(32.0)),
@@ -69,6 +81,17 @@ class _GuestSUState extends State<GuestSU> {
                 ),
               ),
               SizedBox(height: 24.0),
+              TextFormField(
+                controller: contact,
+                autofocus: false,
+                decoration: InputDecoration(
+                  hintText: 'Contact No.',
+                  contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(32.0)),
+                ),
+              ),
+              SizedBox(height: 16.0),
               Padding(
                 padding: EdgeInsets.symmetric(vertical: 24.0),
                 child: RaisedButton(
