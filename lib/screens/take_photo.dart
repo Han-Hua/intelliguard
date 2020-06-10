@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
-import 'package:intelliguard/screens/guest_register.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:async';
-import 'dart:io';
 import 'dart:math' as math;
 import 'package:provider/provider.dart';
 import '../models/user.dart';
@@ -34,11 +32,10 @@ class _CameraScreenState extends State<CameraScreen>
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     cameras = widget.cameras;
     firstCamera = cameras[1];
-    _controller = CameraController(firstCamera, ResolutionPreset.high);
+    _controller = CameraController(firstCamera, ResolutionPreset.ultraHigh);
     _initializeControllerFuture = _controller.initialize();
 
     controller = AnimationController(

@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intelliguard/screens/guest_register.dart';
 import 'dart:convert' as convert;
+import 'package:provider/provider.dart';
 
+import '../models/user.dart';
 import '../screens/show_entries.dart';
 import '../screens/guest_register.dart';
 
@@ -14,27 +16,29 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  Future<String> authenticateUser(id, password) async {
-    //TODO: Change to SecureTempWeb
-    String url = 'https://securetempweb.azurewebsites.net/api/login/$id/$password';
-    var response = await http.get(url);
-    var body = convert.jsonDecode(response.body);
-    if (response.statusCode == 200) {
-      if (body['result'] == true) {
-        Navigator.of(context).pushNamed(ShowEntries.routeName);
-        return '';
-      } else {
-        return 'Wrong User ID or Password!';
-      }
-    } else {
-      return 'Error Logging in, Please try again';
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
     final userId = TextEditingController();
     final userPw = TextEditingController();
+
+    Future<String> authenticateUser(id, password) async {
+      String url = 'https://intelliguard-sg.azurewebsites.net/api/login/?name=$id&pass=$password';
+      var response = await http.get(url);
+      var body = convert.jsonDecode(response.body);
+      print(response.statusCode);
+      if (response.statusCode == 200) {
+        final provider = Provider.of<Users>(context, listen: false);
+        provider.dispose();
+        provider.create();
+        provider.addName(id);
+        print("Next page...");
+        Navigator.of(context).pushNamed(ShowEntries.routeName);
+        return "";
+      } else {
+        return 'Wrong User ID or Password!';
+      }
+    }
 
     return Scaffold(
       body: Stack(
@@ -93,8 +97,7 @@ class _LoginPageState extends State<LoginPage> {
                       borderRadius: BorderRadius.circular(24),
                     ),
                     onPressed: () async {
-                      Navigator.of(context).pushNamed(ShowEntries.routeName);
-                      //authenticateUser(userId.text.trim(), userPw.text.trim());
+                      authenticateUser(userId.text.trim(), userPw.text.trim());
                     },
                     padding: EdgeInsets.all(12),
                     color: Colors.white,

@@ -2,30 +2,37 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:intelliguard/dummydata.dart';
 
 import '../models/entry.dart';
 import '../widgets/entry_item.dart';
+import '../models/user.dart';
 
 class Display extends StatefulWidget {
-
   static const routeName = '/display';
   @override
   _DisplayState createState() => _DisplayState();
+
 }
 
 class _DisplayState extends State<Display> {
   List data;
 
   Future<void> getEntries() async {
-    var response = await http.get(
-        ("https://maddapp.azurewebsites.net/api/entryrecords"),
-        headers: {"Accept": "application/json"});
-    print(response.statusCode);
+
+    final provider = Provider.of<Users>(context, listen: false);
+    User user = provider.getUser();
+
+    print(user.userName);
+
+    var response = await http
+        .get(("http://intelliguard-sg.azurewebsites.net/api/entryrecords/${user.userName}"), headers: {
+      "Accept": "application/json",
+    });
     this.setState(() {
       data = json.decode(response.body);
     });
 
+    print(data.toString());
     final entryData = Provider.of<EntryHistory>(context, listen: false);
     for (int i = 0; i < data.length; i++) {
       Entry e = Entry(
@@ -45,12 +52,7 @@ class _DisplayState extends State<Display> {
   @override
   void initState() {
     super.initState();
-    //getEntries();
-    final entryProvider = Provider.of<EntryHistory>(context, listen: false);
-    entryProvider.clearEntries();
-    for(Entry e in entryList){
-      entryProvider.addEntry(e);
-    }
+    getEntries();
   }
 
   @override
@@ -70,16 +72,17 @@ class _DisplayState extends State<Display> {
               ChangeNotifierProvider.value(
                   value: entryProvider,
                   child: EntryItem(
-                    name: entryProvider.entry[i].name,
                     temperature: entryProvider.entry[i].temperature,
                     entryDateTime: entryProvider.entry[i].entryDateTime,
                   )),
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 1,
-            childAspectRatio: 3/1,
+            childAspectRatio: 3 / 1,
             crossAxisSpacing: 10,
             mainAxisSpacing: 10,
           ),
+
+
         ),
       ],
     );

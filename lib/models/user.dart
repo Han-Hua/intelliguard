@@ -7,6 +7,7 @@ class User with ChangeNotifier{
   int contact;
   String role;
 
+
   User({
     this.userName,
     this.paths,
@@ -19,6 +20,10 @@ class User with ChangeNotifier{
 class Users with ChangeNotifier{
   User newUser = new User();
 
+  User create(){
+    newUser = new User();
+  }
+
   User getUser(){
     return newUser;
   }
@@ -27,6 +32,10 @@ class Users with ChangeNotifier{
     newUser.paths = new List<String>();
     newUser.paths.addAll(paths);
     return true;
+  }
+
+  void addName(name){
+    newUser.userName = name;
   }
 
   void addDetails(name, contact){
@@ -38,3 +47,4 @@ class Users with ChangeNotifier{
     newUser.dispose();
   }
 }
+

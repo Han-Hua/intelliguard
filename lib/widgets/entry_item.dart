@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 
 class EntryItem extends StatelessWidget {
-  final String name;
   final num temperature;
   final String entryDateTime;
 
-  EntryItem({this.name, this.temperature, this.entryDateTime});
+  EntryItem({this.temperature, this.entryDateTime});
 
   @override
   Widget build(BuildContext context) {
@@ -30,6 +29,12 @@ class EntryItem extends StatelessWidget {
       }
     }
 
+    String getDateTime(){
+      String result =entryDateTime.replaceAll("-", "/");
+      result = entryDateTime.replaceFirst('T', ' ');
+      return (result);
+    }
+
     return Material(
       borderRadius: BorderRadius.circular(15),
       color: Color(0xFF79A7D3),
@@ -41,12 +46,12 @@ class EntryItem extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 new Container(height: 3.0),
-                new Text(name, style: headerTextStyle),
+                new Text("Entry Date/Time: ", style: headerTextStyle),
+                new Container(height: 3.0),
+                new Text(getDateTime(), style: headerTextStyle),
                 new Container(height: 7.0),
                 new Text("Temperature: $temperature Degrees",
                     style: subHeaderTextStyle),
-                new Container(height: 7.0),
-                new Text("Time: $entryDateTime", style: subHeaderTextStyle),
               ],
             ),
           ),

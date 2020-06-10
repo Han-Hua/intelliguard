@@ -8,6 +8,10 @@ class ShowEntries extends StatefulWidget {
 
   @override
   _ShowEntriesState createState() => _ShowEntriesState();
+
+  final String id;
+
+  ShowEntries({this.id});
 }
 
 class _ShowEntriesState extends State<ShowEntries> {

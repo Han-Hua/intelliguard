@@ -7,6 +7,7 @@ import 'package:intelliguard/screens/show_entries.dart';
 import 'package:intelliguard/screens/take_photo.dart';
 import 'package:provider/provider.dart';
 import 'package:intelliguard/models/user.dart';
+import 'package:intelliguard/models/verified.dart';
 
 import 'screens/login_screen.dart';
 import 'screens/guest_register.dart';
@@ -39,7 +40,8 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider.value(value: EntryHistory()
         ),
-        ChangeNotifierProvider.value(value: Users())
+        ChangeNotifierProvider.value(value: Users()),
+        ChangeNotifierProvider.value(value: Verified())
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
