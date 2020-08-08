@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:intelliguard/models/entry.dart';
 import 'package:intelliguard/screens/guest_register.dart';
+import 'package:intelliguard/screens/homepage.dart';
 import 'package:intelliguard/screens/show_entries.dart';
 import 'package:intelliguard/screens/take_photo.dart';
 import 'package:provider/provider.dart';
@@ -41,7 +42,8 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider.value(value: EntryHistory()
         ),
         ChangeNotifierProvider.value(value: Users()),
-        ChangeNotifierProvider.value(value: Verified())
+        ChangeNotifierProvider.value(value: CreateUser()),
+        ChangeNotifierProvider.value(value: Verified()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
@@ -54,7 +56,7 @@ class MyApp extends StatelessWidget {
           GuestSU.routeName: (ctx) => GuestSU(),
           Startup.routeName: (ctx) => Startup(),
           CameraScreen.routeName: (ctx) => CameraScreen(cameras: camera,),
-
+          Homepage.routeName:(ctx) => Homepage(),
         },
       ),
     );

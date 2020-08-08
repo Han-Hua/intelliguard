@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intelliguard/screens/guest_register.dart';
+import 'package:intelliguard/screens/homepage.dart';
 import 'dart:convert' as convert;
 import 'package:provider/provider.dart';
 
@@ -17,13 +18,15 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
 
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
+
   @override
   Widget build(BuildContext context) {
     final userId = TextEditingController();
     final userPw = TextEditingController();
 
-    Future<String> authenticateUser(id, password) async {
-      String url = 'https://intelliguard-sg.azurewebsites.net/api/login/?name=$id&pass=$password';
+    Future<void> authenticateUser(id, password) async {
+      String url = 'https://maddintelliguard.azurewebsites.net/api/login/?name=$id&pass=$password';
       var response = await http.get(url);
       var body = convert.jsonDecode(response.body);
       print(response.statusCode);
@@ -31,29 +34,20 @@ class _LoginPageState extends State<LoginPage> {
         final provider = Provider.of<Users>(context, listen: false);
         provider.dispose();
         provider.create();
-        provider.addName(id);
+        //provider.addName(id);
         print("Next page...");
         Navigator.of(context).pushNamed(ShowEntries.routeName);
-        return "";
       } else {
-        return 'Wrong User ID or Password!';
+        _scaffoldKey.currentState.showSnackBar(SnackBar(content: Text('Wrong User ID or Password!')));
       }
     }
 
     return Scaffold(
+      key: _scaffoldKey,
       body: Stack(
         children: <Widget>[
           Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Color(0xFF4f74c2),
-                    Color(0xFF6883BC),
-                    Color(0xFF79A7D3)
-                  ]),
-            ),
+            color: Colors.white,
           ),
           Center(
             child: ListView(
@@ -61,12 +55,12 @@ class _LoginPageState extends State<LoginPage> {
               padding: EdgeInsets.only(left: 24.0, right: 24.0),
               children: <Widget>[
                 Image.asset(
-                  'images/white_logo.png',
-                  height: 200,
+                  'images/Intelliguard.jpg',
+                  height: 350 ,
                   width: 200,
                   fit: BoxFit.fitWidth,
                 ),
-                SizedBox(height: 48.0),
+                SizedBox(height: 10.0),
                 TextFormField(
                   controller: userId,
                   autofocus: false,
@@ -97,12 +91,13 @@ class _LoginPageState extends State<LoginPage> {
                       borderRadius: BorderRadius.circular(24),
                     ),
                     onPressed: () async {
-                      authenticateUser(userId.text.trim(), userPw.text.trim());
+                      Navigator.of(context).pushNamed(Homepage.routeName);
+                      //authenticateUser(userId.text.trim(), userPw.text.trim());
                     },
                     padding: EdgeInsets.all(12),
-                    color: Colors.white,
+                    color: Colors.lightBlue,
                     child:
-                        Text('Log In', style: TextStyle(color: Color(0xFF79A7D3))),
+                        Text('Log In', style: TextStyle(color: Colors.white)),
                   ),
                 ),
                 FlatButton(

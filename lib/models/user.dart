@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 class User with ChangeNotifier{
   String userName;
+  String fullName;
   List<String> paths;
   int contact;
   String role;
@@ -10,6 +11,7 @@ class User with ChangeNotifier{
 
   User({
     this.userName,
+    this.fullName,
     this.paths,
     this.contact,
     this.role
@@ -22,7 +24,20 @@ class Users with ChangeNotifier{
 
   User create(){
     newUser = new User();
+    return newUser;
   }
+
+  User getUser(){
+    return newUser;
+  }
+
+  void dispose(){
+    newUser.dispose();
+  }
+}
+
+class CreateUser with ChangeNotifier{
+  User newUser = new User();
 
   User getUser(){
     return newUser;
@@ -34,17 +49,13 @@ class Users with ChangeNotifier{
     return true;
   }
 
-  void addName(name){
-    newUser.userName = name;
-  }
-
-  void addDetails(name, contact){
-    newUser.userName = name;
-    newUser.contact = contact;
+  void disposePhotos(){
+    newUser.paths.clear();
   }
 
   void dispose(){
     newUser.dispose();
   }
+
 }
 
