@@ -51,8 +51,8 @@ class _LoginPageState extends State<LoginPage> {
         provider.create();
         provider.add(body["userName"], body["fullName"], body["userContact"],
             body["role"]);
-        saveIdentityPreference(body["nric"], body["contact"]).then(
-            (value) => Navigator.of(context).pushNamed(Homepage.routeName));
+        saveIdentityPreference(body["nric"], body["contact"]);
+        Navigator.of(context).pushNamed(Homepage.routeName);
       } else {
         _scaffoldKey.currentState.showSnackBar(
             SnackBar(content: Text('Wrong User ID or Password!')));

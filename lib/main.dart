@@ -5,6 +5,7 @@ import 'package:intelliguard/models/entry.dart';
 import 'package:intelliguard/screens/guest_register.dart';
 import 'package:intelliguard/screens/homepage.dart';
 import 'package:intelliguard/screens/news_display.dart';
+import 'package:intelliguard/screens/scan.dart';
 import 'package:intelliguard/screens/show_entries.dart';
 import 'package:intelliguard/screens/take_photo.dart';
 import 'package:provider/provider.dart';
@@ -58,6 +59,7 @@ class MyApp extends StatelessWidget {
           Startup.routeName: (ctx) => Startup(),
           CameraScreen.routeName: (ctx) => CameraScreen(cameras: camera,),
           Homepage.routeName:(ctx) => Homepage(),
+          ScanBeacon.routeName:(ctx) => ScanBeacon(),
         },
       ),
     );

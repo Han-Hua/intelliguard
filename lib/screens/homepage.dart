@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intelliguard/screens/scan.dart';
 import 'package:intelliguard/screens/show_entries.dart';
 import '../models/titles.dart';
 import '../screens/news.dart';
@@ -29,7 +30,7 @@ class _HomepageState extends State<Homepage> {
           ),
         ),
         body: TabBarView(
-          children: <Widget>[ShowEntries(), News(), Chart(),],
+          children: <Widget>[ShowEntries(), News(), Chart(), ScanBeacon()],
         )
       ),
     );
