@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import 'package:intelliguard/screens/guest_register.dart';
 import 'package:intelliguard/screens/homepage.dart';
-import 'dart:convert' as convert;
-import 'package:provider/provider.dart';
 
 import '../models/user.dart';
-import '../screens/show_entries.dart';
 import '../screens/guest_register.dart';
 
 class LoginPage extends StatefulWidget {
@@ -17,7 +18,6 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
@@ -25,20 +25,37 @@ class _LoginPageState extends State<LoginPage> {
     final userId = TextEditingController();
     final userPw = TextEditingController();
 
+    Future<bool> saveIdentityPreference(String nric, int contact) async {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      prefs.setString("nric", nric);
+      prefs.setInt("contact", contact);
+
+      return true;
+    }
+
+
     Future<void> authenticateUser(id, password) async {
-      String url = 'https://maddintelliguard.azurewebsites.net/api/login/?name=$id&pass=$password';
-      var response = await http.get(url);
-      var body = convert.jsonDecode(response.body);
+      String url =
+          'https://maddintelliguard.azurewebsites.net/api/MaddUser/$id/$password';
+      var response = await http.get(url, headers: {
+        "Accept": "application/json",
+      });
       print(response.statusCode);
       if (response.statusCode == 200) {
+        var body = json.decode(response.body);
+
+        print('User Name: ${body["userName"]}');
+
         final provider = Provider.of<Users>(context, listen: false);
         provider.dispose();
         provider.create();
-        //provider.addName(id);
-        print("Next page...");
-        Navigator.of(context).pushNamed(ShowEntries.routeName);
+        provider.add(body["userName"], body["fullName"], body["userContact"],
+            body["role"]);
+        saveIdentityPreference(body["nric"], body["contact"]).then(
+            (value) => Navigator.of(context).pushNamed(Homepage.routeName));
       } else {
-        _scaffoldKey.currentState.showSnackBar(SnackBar(content: Text('Wrong User ID or Password!')));
+        _scaffoldKey.currentState.showSnackBar(
+            SnackBar(content: Text('Wrong User ID or Password!')));
       }
     }
 
@@ -56,7 +73,7 @@ class _LoginPageState extends State<LoginPage> {
               children: <Widget>[
                 Image.asset(
                   'images/Intelliguard.jpg',
-                  height: 350 ,
+                  height: 350,
                   width: 200,
                   fit: BoxFit.fitWidth,
                 ),
@@ -91,8 +108,8 @@ class _LoginPageState extends State<LoginPage> {
                       borderRadius: BorderRadius.circular(24),
                     ),
                     onPressed: () async {
-                      Navigator.of(context).pushNamed(Homepage.routeName);
-                      //authenticateUser(userId.text.trim(), userPw.text.trim());
+                      //Navigator.of(context).pushNamed(Homepage.routeName);
+                      authenticateUser(userId.text.trim(), userPw.text.trim());
                     },
                     padding: EdgeInsets.all(12),
                     color: Colors.lightBlue,

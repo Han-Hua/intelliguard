@@ -4,6 +4,7 @@ import 'package:camera/camera.dart';
 import 'package:intelliguard/models/entry.dart';
 import 'package:intelliguard/screens/guest_register.dart';
 import 'package:intelliguard/screens/homepage.dart';
+import 'package:intelliguard/screens/news_display.dart';
 import 'package:intelliguard/screens/show_entries.dart';
 import 'package:intelliguard/screens/take_photo.dart';
 import 'package:provider/provider.dart';

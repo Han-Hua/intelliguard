@@ -6,13 +6,14 @@ class Entry with ChangeNotifier {
   final String name;
   final num temperature;
   final String entryDateTime;
+  final String location;
 
   Entry(
       {this.entryID,
         this.userId,
         this.name,
         this.temperature,
-        this.entryDateTime});
+        this.entryDateTime, this.location});
 }
 
 class EntryHistory extends ChangeNotifier{

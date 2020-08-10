@@ -27,6 +27,14 @@ class Users with ChangeNotifier{
     return newUser;
   }
 
+  String add(String userName, String fullName, int userContact, String role){
+    newUser.userName = userName;
+    newUser.fullName = fullName;
+    newUser.contact = userContact;
+    newUser.role = role;
+    return "User Logged In";
+  }
+
   User getUser(){
     return newUser;
   }

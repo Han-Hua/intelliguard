@@ -21,26 +21,27 @@ class _DisplayState extends State<Display> {
     final provider = Provider.of<Users>(context, listen: false);
     User user = provider.getUser();
 
-    print(user.userName);
-
     var response = await http.get(
-        ("http://intelliguard-sg.azurewebsites.net/api/entryrecords/${user.userName}"),
+        ("http://maddintelliguard.azurewebsites.net/api/entryrecords/${user.userName}"),
         headers: {
           "Accept": "application/json",
         });
+
+    print("GET Entry Records Response Code: ${response.statusCode}");
 
     if (response.statusCode == 200) {
       this.setState(() {
         data = json.decode(response.body);
       });
 
-      print(data.toString());
       final entryData = Provider.of<EntryHistory>(context, listen: false);
       for (int i = 0; i < data.length; i++) {
         Entry e = Entry(
-            entryID: data[i]['entryID'],
-            temperature: data[i]['temperature'],
-            entryDateTime: data[i]['entryTime']);
+          entryID: data[i]['entryID'],
+          temperature: data[i]['temperature'],
+          entryDateTime: data[i]['entryTime'],
+          location: data[i]['location'],
+        );
 
         entryData.addEntry(e);
       }
@@ -56,26 +57,26 @@ class _DisplayState extends State<Display> {
 
   Widget _printGrid() {
     final entryProvider = Provider.of<EntryHistory>(context, listen: false);
-    if (entryProvider.entry.length != 0){
+    if (entryProvider.entry.length != 0) {
       return GridView.builder(
         padding: const EdgeInsets.all(10.0),
-        itemCount:
-        entryProvider.entry == null ? 0 : entryProvider.entry.length,
+        itemCount: entryProvider.entry == null ? 0 : entryProvider.entry.length,
         itemBuilder: (BuildContext context, int i) =>
             ChangeNotifierProvider.value(
                 value: entryProvider,
                 child: EntryItem(
                   temperature: entryProvider.entry[i].temperature,
                   entryDateTime: entryProvider.entry[i].entryDateTime,
+                  location: entryProvider.entry[i].location,
                 )),
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 1,
-          childAspectRatio: 3 / 1,
+          childAspectRatio: 5 / 2,
           crossAxisSpacing: 10,
           mainAxisSpacing: 10,
         ),
       );
-    }else{
+    } else {
       return Center(
         child: Text("You have no records yet!"),
       );

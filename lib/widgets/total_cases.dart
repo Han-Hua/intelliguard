@@ -1,30 +1,80 @@
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class LineChartCases extends StatefulWidget {
   @override
   _LineChartCasesState createState() => _LineChartCasesState();
+}
 
-  static List<charts.Series<DailyCases, int>> _sampleData() {
-    var totalCases = [
-      DailyCases(1, 13, 3),
-      DailyCases(2, 102, 3),
-      DailyCases(3, 926, 3),
-      DailyCases(4, 16169, 3),
-      DailyCases(5, 34884, 3),
-      DailyCases(6, 43907, 3),
-      DailyCases(7, 52205, 3),
-    ];
+class _LineChartCasesState extends State<LineChartCases> {
+  int _time;
+  List items;
+  Map<String, num> _measures;
 
-    var recoveredCases = [
-      DailyCases(1, 0, 2),
-      DailyCases(2, 72, 2),
-      DailyCases(3, 240, 2),
-      DailyCases(4, 1244, 2),
-      DailyCases(5, 21699, 2),
-      DailyCases(6, 38500, 2),
-      DailyCases(7, 46491, 2),
-    ];
+  final month = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December'
+  ];
+
+  Future<void> getMonthlyCases() async {
+    var url =
+        "https://maddintelliguard.azurewebsites.net/api/mobile/GetMonthlyCases";
+    var response = await http.get(url, headers: {
+      "Accept": "application/json",
+    });
+
+    print(response.body);
+
+    if (response.statusCode == 200) {
+      items = json.decode(response.body);
+      print(response.body);
+
+      return "Success";
+    }
+  }
+
+  List<DailyCases> _populateConfirmedCases() {
+    List<DailyCases> cases = new List<DailyCases>();
+    for (var i in items) {
+      int month = i["month"];
+      int amount = i["confirmedCases"];
+
+      DailyCases dailyCases = new DailyCases(month, amount, 3);
+
+      cases.add(dailyCases);
+    }
+    return cases;
+  }
+
+  List<DailyCases> _populateRecoveredCases() {
+    List<DailyCases> cases = new List<DailyCases>();
+    for (var i in items) {
+      int month = i["month"];
+      int amount = i["recoveredCases"];
+
+      DailyCases dailyCases = new DailyCases(month, amount, 3);
+
+      cases.add(dailyCases);
+    }
+    return cases;
+  }
+
+  List<charts.Series<DailyCases, int>> _sampleData() {
+    var totalCases = _populateConfirmedCases();
+
+    var recoveredCases = _populateRecoveredCases();
 
     final blue = charts.MaterialPalette.blue.makeShades(2);
     final red = charts.MaterialPalette.red.makeShades(2);
@@ -48,11 +98,6 @@ class LineChartCases extends StatefulWidget {
       ),
     ];
   }
-}
-
-class _LineChartCasesState extends State<LineChartCases> {
-  int _time;
-  Map<String, num> _measures;
 
   _onSelectionChanged(charts.SelectionModel model) {
     final selectedDatum = model.selectedDatum;
@@ -73,21 +118,22 @@ class _LineChartCasesState extends State<LineChartCases> {
     });
   }
 
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildChart() {
     final children = <Widget>[
       new Padding(
         padding: EdgeInsets.all(32.0),
         child: SizedBox(
           height: 200,
-          child: new charts.LineChart(LineChartCases._sampleData(),
+          child: new charts.LineChart(
+            _sampleData(),
             defaultRenderer:
-            new charts.LineRendererConfig(includeArea: true, stacked: true),
+                new charts.LineRendererConfig(includeArea: true, stacked: true),
             animate: false,
-            selectionModels: [new charts.SelectionModelConfig(
-                type: charts.SelectionModelType.info,
-                changedListener: _onSelectionChanged
-            )],
+            selectionModels: [
+              new charts.SelectionModelConfig(
+                  type: charts.SelectionModelType.info,
+                  changedListener: _onSelectionChanged)
+            ],
           ),
         ),
       )
@@ -96,18 +142,37 @@ class _LineChartCasesState extends State<LineChartCases> {
     if (_time != null) {
       children.add(new Padding(
           padding: new EdgeInsets.only(top: 5.0),
-          child: new Text(_time.toString())));
+          child: new Text(month[_time - 1])));
     }
     _measures?.forEach((String series, num value) {
       children.add(new Text('$series: $value'));
     });
-    return new Column(children: children,);
+
+    return new Column(
+      children: children,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+      future: getMonthlyCases(),
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          return _buildChart();
+        } else if (snapshot.hasError) {
+          return Text("${snapshot.error}");
+        }
+        // By default, show a loading spinner
+        return CircularProgressIndicator();
+      },
+    );
   }
 }
 
 class DailyCases {
   final int date;
-  final double cases;
+  final int cases;
   final double strokeWidthPx;
 
   DailyCases(this.date, this.cases, this.strokeWidthPx);

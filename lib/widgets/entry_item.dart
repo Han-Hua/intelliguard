@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 class EntryItem extends StatelessWidget {
   final num temperature;
   final String entryDateTime;
+  final String location;
 
-  EntryItem({this.temperature, this.entryDateTime});
+  EntryItem({this.temperature, this.entryDateTime, this.location});
 
   @override
   Widget build(BuildContext context) {
@@ -29,8 +30,8 @@ class EntryItem extends StatelessWidget {
       }
     }
 
-    String getDateTime(){
-      String result =entryDateTime.replaceAll("-", "/");
+    String getDateTime() {
+      String result = entryDateTime.replaceAll("-", "/");
       result = entryDateTime.replaceFirst('T', ' ');
       return (result);
     }
@@ -52,6 +53,8 @@ class EntryItem extends StatelessWidget {
                 new Container(height: 7.0),
                 new Text("Temperature: $temperature Degrees",
                     style: subHeaderTextStyle),
+                new Text("Location: $location",
+                    style: subHeaderTextStyle)
               ],
             ),
           ),
