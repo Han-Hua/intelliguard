@@ -34,7 +34,6 @@ class _MyAppState extends State<ScanBeacon> with WidgetsBindingObserver {
   String checkStatus = "";
   List<Beacon> beacons = <Beacon>[];
 
-
   Future<String> getNRICPreference() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String nric = prefs.getString("nric");
@@ -87,6 +86,7 @@ class _MyAppState extends State<ScanBeacon> with WidgetsBindingObserver {
       this.nric = nric;
     });
   }
+
   void updateContact(int contact) {
     setState(() {
       this.contact = contact;
@@ -254,19 +254,15 @@ class _MyAppState extends State<ScanBeacon> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      theme: ThemeData(
-        brightness: Brightness.light,
-        primaryColor: Colors.white,
-      ),
-      darkTheme: ThemeData(
-        brightness: Brightness.dark,
-      ),
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Flutter Beacon'),
-          centerTitle: false,
-          actions: <Widget>[
+    return Column(
+      children: <Widget>[
+        Row(
+          children: <Widget>[
+            Expanded(
+              child: SizedBox(
+                width: 10,
+              ),
+            ),
             if (!authorizationStatusOk)
               IconButton(
                   icon: Icon(Icons.portable_wifi_off),
@@ -326,7 +322,7 @@ class _MyAppState extends State<ScanBeacon> with WidgetsBindingObserver {
             ),
           ],
         ),
-        body: _beacons == null || _beacons.isEmpty
+        _beacons == null || _beacons.isEmpty
             ? Center(child: CircularProgressIndicator())
             : ListView(
                 children: ListTile.divideTiles(
@@ -352,7 +348,7 @@ class _MyAppState extends State<ScanBeacon> with WidgetsBindingObserver {
                       );
                     })).toList(),
               ),
-      ),
+      ],
     );
   }
 }
