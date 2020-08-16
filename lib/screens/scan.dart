@@ -8,7 +8,6 @@ import 'package:flutter_beacon/flutter_beacon.dart';
 import '../models/tracing_info.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
-import 'package:dio/dio.dart';
 import 'dart:convert' as convert;
 
 class ScanBeacon extends StatefulWidget {
@@ -29,10 +28,38 @@ class _MyAppState extends State<ScanBeacon> with WidgetsBindingObserver {
   bool bluetoothEnabled = false;
   String location = "North Agora";
   String status = "";
-  String nric = "";
-  int contact = 0;
+  String _nric = "";
+  int _contact = 0;
   String checkStatus = "";
-  List<Beacon> beacons = <Beacon>[];
+
+  Future<String> contactTracing(TracingInfo a) async {
+    String url =
+        'https://intelliguardsg.azurewebsites.net/api/Entry/addTracing';
+
+    var month = a.entrytime.month.toString().padLeft(2, '0');
+    var day = a.entrytime.day.toString().padLeft(2, '0');
+    var min = a.entrytime.minute.toString().padLeft(2, "0");
+    var entryD = '${a.entrytime.year}-$month-$day';
+    var entryT = 'T${a.entrytime.hour}:$min:${a.entrytime.second}';
+    var entrytime = entryD + entryT;
+    print(entrytime);
+    final response = await http.post(url,
+        headers: {
+          "Accept": "application/json",
+          "content-type": "application/json"
+        },
+        body: convert.jsonEncode({
+          "location": a.location,
+          "nric": a.nric,
+          "contact": a.contact,
+          "status": a.status,
+          "entrytime": entrytime
+        }));
+
+    print("statuscode: ${response.statusCode}");
+    print(DateTime.now().toString());
+    return (response.body);
+  }
 
   Future<String> getNRICPreference() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -48,26 +75,6 @@ class _MyAppState extends State<ScanBeacon> with WidgetsBindingObserver {
     return contact;
   }
 
-  Future<String> contactTracing(TracingInfo a) async {
-    String url =
-        "https://maddintelliguard.azurewebsites.net/api/Entry/addTracing";
-
-    final response = await http.post(url,
-        headers: {
-          "Accept": "application/json",
-          "content-type": "application/json"
-        },
-        body: convert.jsonEncode({
-          "location": a.location,
-          "nric": a.nric,
-          "contact": a.contact,
-          "status": a.status,
-          "entrytime": a.entrytime
-        }));
-
-    return response.statusCode.toString();
-  }
-
   @override
   void initState() {
     WidgetsBinding.instance.addObserver(this);
@@ -78,18 +85,19 @@ class _MyAppState extends State<ScanBeacon> with WidgetsBindingObserver {
 
     getNRICPreference().then(updateNRIC);
     getContactPreference().then(updateContact);
+
     super.initState();
   }
 
   void updateNRIC(String nric) {
     setState(() {
-      this.nric = nric;
+      this._nric = nric;
     });
   }
 
   void updateContact(int contact) {
     setState(() {
-      this.contact = contact;
+      this._contact = contact;
     });
   }
 
@@ -121,7 +129,7 @@ class _MyAppState extends State<ScanBeacon> with WidgetsBindingObserver {
         authorizationStatus == AuthorizationStatus.allowed ||
             authorizationStatus == AuthorizationStatus.always;
     final locationServiceEnabled =
-        await flutterBeacon.checkLocationServicesIfEnabled;
+    await flutterBeacon.checkLocationServicesIfEnabled;
 
     setState(() {
       this.authorizationStatusOk = authorizationStatusOk;
@@ -161,42 +169,48 @@ class _MyAppState extends State<ScanBeacon> with WidgetsBindingObserver {
 
     _streamRanging =
         flutterBeacon.ranging(regions).listen((RangingResult result) {
-      print(result);
-      if (result != null && mounted) {
-        setState(() {
-          _regionBeacons[result.region] = result.beacons;
-          _beacons.clear();
-          _regionBeacons.values.forEach((list) {
-            list.forEach((element) {
-              if (element.accuracy < 0.2) {
-                _beacons.add(element);
+          print(result);
+          if (result != null && mounted) {
+            setState(() {
+              _regionBeacons[result.region] = result.beacons;
 
-                if (element.proximityUUID ==
-                    'B9407F30-F5F8-466E-AFF9-25556B57FE6D') {
-                  status = 'Check-IN';
-                  if (status != checkStatus) {
-                    checkStatus = status;
-                    TracingInfo record = new TracingInfo(
-                        location, nric, contact, status, DateTime.now());
-                    contactTracing(record);
+              _regionBeacons.values.forEach((list) {
+                list.forEach((element) {
+                  if (element.accuracy < 0.03) {
+                    if (element.proximityUUID ==
+                        'B9407F30-F5F8-466E-AFF9-25556B57FE6D') {
+                      status = 'Check-IN';
+                      if (status != checkStatus) {
+                        checkStatus = status;
+
+                        TracingInfo record = new TracingInfo(
+                            location, _nric, _contact, status, DateTime.now());
+                        contactTracing(record);
+                        print(record.status);
+                        _beacons.clear();
+                        _beacons.add(element);
+                      }
+                    } else if (element.proximityUUID ==
+                        '7B8C48A1-6287-FE3C-F194-C99FA98C3AA3') {
+                      status = 'Check-Out';
+                      if (status != checkStatus) {
+                        checkStatus = status;
+
+                        TracingInfo record = new TracingInfo(
+                            location, _nric, _contact, status, DateTime.now());
+                        contactTracing(record);
+                        print(record.status);
+                        _beacons.clear();
+                        _beacons.add(element);
+                      }
+                    }
                   }
-                } else if (element.proximityUUID ==
-                    '7B8C48A1-6287-FE3C-F194-C99FA98C3AA3') {
-                  status = 'Check-Out';
-                  if (status != checkStatus) {
-                    checkStatus = status;
-                    TracingInfo record = new TracingInfo(
-                        location, nric, contact, status, DateTime.now());
-                    contactTracing(record);
-                  }
-                }
-              }
+                });
+              });
+              _beacons.sort(_compareParameters);
             });
-          });
-          _beacons.sort(_compareParameters);
+          }
         });
-      }
-    });
   }
 
   pauseScanBeacon() async {
@@ -322,32 +336,34 @@ class _MyAppState extends State<ScanBeacon> with WidgetsBindingObserver {
             ),
           ],
         ),
-        _beacons == null || _beacons.isEmpty
-            ? Center(child: CircularProgressIndicator())
-            : ListView(
-                children: ListTile.divideTiles(
-                    context: context,
-                    tiles: _beacons.map((beacon) {
-                      return ListTile(
-                        title: Text(location),
-                        subtitle: new Row(
-                          mainAxisSize: MainAxisSize.max,
-                          children: <Widget>[
-                            Flexible(
-                                child: Text('$status',
-                                    style: TextStyle(fontSize: 13.0)),
-                                flex: 1,
-                                fit: FlexFit.tight),
-                            Flexible(
-                                child: Text('$nric',
-                                    style: TextStyle(fontSize: 13.0)),
-                                flex: 2,
-                                fit: FlexFit.tight)
-                          ],
-                        ),
-                      );
-                    })).toList(),
-              ),
+        Expanded(
+          child: _beacons == null || _beacons.isEmpty
+              ? Center(child: CircularProgressIndicator())
+              : ListView(
+            children: ListTile.divideTiles(
+                context: context,
+                tiles: _beacons.map((beacon) {
+                  return ListTile(
+                    title: Text(location),
+                    subtitle: new Row(
+                      mainAxisSize: MainAxisSize.max,
+                      children: <Widget>[
+                        Flexible(
+                            child: Text('$status',
+                                style: TextStyle(fontSize: 13.0)),
+                            flex: 1,
+                            fit: FlexFit.tight),
+                        Flexible(
+                            child: Text('$_nric',
+                                style: TextStyle(fontSize: 13.0)),
+                            flex: 2,
+                            fit: FlexFit.tight)
+                      ],
+                    ),
+                  );
+                })).toList(),
+          ),
+        )
       ],
     );
   }

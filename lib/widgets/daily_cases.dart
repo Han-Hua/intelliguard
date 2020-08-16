@@ -9,11 +9,11 @@ class BarChart extends StatefulWidget {
 }
 
 class _BarChartState extends State<BarChart> {
-
   List items;
 
   Future<void> getDailyCases() async {
-    var url = "https://maddintelliguard.azurewebsites.net/api/mobile/GetPastWeekCases";
+    var url =
+        "https://intelliguardsg.azurewebsites.net/api/mobile/GetPastWeekCases";
     var response = await http.get(url, headers: {
       "Accept": "application/json",
     });
@@ -21,17 +21,16 @@ class _BarChartState extends State<BarChart> {
     print(response.body);
 
     if (response.statusCode == 200) {
-        items = json.decode(response.body);
-        print(response.body);
+      items = json.decode(response.body);
+      print(response.body);
 
-        return "Success";
+      return "Success";
     }
-
   }
 
-  List<Cases> _populateData(){
+  List<Cases> _populateData() {
     List<Cases> cases = new List<Cases>();
-    for(var i in items){
+    for (var i in items) {
       List<String> date = i["date"].split("/");
       String month = "${date[0]} ${date[1]}";
       int amount = i["cases"];
@@ -43,10 +42,8 @@ class _BarChartState extends State<BarChart> {
     return cases;
   }
 
-  Widget _buildChart(){
-
+  Widget _buildChart() {
     var data = _populateData();
-
 
     var series = [
       charts.Series(
@@ -83,20 +80,18 @@ class _BarChartState extends State<BarChart> {
 
   @override
   Widget build(BuildContext context) {
-
-    var chartWidget =
-      FutureBuilder(
-        future: getDailyCases(),
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            return _buildChart();
-          } else if (snapshot.hasError) {
-            return Text("${snapshot.error}");
-          }
-          // By default, show a loading spinner
-          return CircularProgressIndicator();
-        },
-      );
+    var chartWidget = FutureBuilder(
+      future: getDailyCases(),
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          return _buildChart();
+        } else if (snapshot.hasError) {
+          return Text("${snapshot.error}");
+        }
+        // By default, show a loading spinner
+        return CircularProgressIndicator();
+      },
+    );
 
     return chartWidget;
   }

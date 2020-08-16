@@ -33,10 +33,9 @@ class _LoginPageState extends State<LoginPage> {
       return true;
     }
 
-
     Future<void> authenticateUser(id, password) async {
       String url =
-          'https://maddintelliguard.azurewebsites.net/api/MaddUser/$id/$password';
+          'https://intelliguardsg.azurewebsites.net/api/MaddUser/$id/$password';
       var response = await http.get(url, headers: {
         "Accept": "application/json",
       });
@@ -51,7 +50,7 @@ class _LoginPageState extends State<LoginPage> {
         provider.create();
         provider.add(body["userName"], body["fullName"], body["userContact"],
             body["role"]);
-        saveIdentityPreference(body["nric"], body["contact"]);
+        saveIdentityPreference(body["nric"], body["userContact"]);
         Navigator.of(context).pushNamed(Homepage.routeName);
       } else {
         _scaffoldKey.currentState.showSnackBar(

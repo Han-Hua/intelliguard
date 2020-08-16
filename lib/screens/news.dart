@@ -14,7 +14,7 @@ class _NewsState extends State<News> {
 
   Future<String> _getNews() async {
     String url =
-        "https://maddintelliguard.azurewebsites.net/api/mobile/GetTop20News";
+        "https://intelliguardsg.azurewebsites.net/api/mobile/GetTop20News";
 
     var response = await http.get(url, headers: {
       "Accept": "application/json",

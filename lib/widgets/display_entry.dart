@@ -22,8 +22,8 @@ class _DisplayState extends State<Display> {
     User user = provider.getUser();
 
     var response = await http.get(
-        ("http://maddintelliguard.azurewebsites.net/api/entryrecords/${user.userName}"),
-        headers: {
+        ("https://intelliguardsg.azurewebsites.net/api/entryrecords/${user.userName}"),
+    headers: {
           "Accept": "application/json",
         });
 

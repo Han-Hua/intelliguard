@@ -30,7 +30,7 @@ class _LineChartCasesState extends State<LineChartCases> {
 
   Future<void> getMonthlyCases() async {
     var url =
-        "https://maddintelliguard.azurewebsites.net/api/mobile/GetMonthlyCases";
+        "https://intelliguardsg.azurewebsites.net/api/mobile/GetMonthlyCases";
     var response = await http.get(url, headers: {
       "Accept": "application/json",
     });

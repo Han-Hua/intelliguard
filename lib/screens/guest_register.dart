@@ -42,7 +42,7 @@ class _GuestSUState extends State<GuestSU> {
   }
 
   Future<String> createUser(String file) async {
-    var url = 'http://maddintelliguard.azurewebsites.net/api/Data/Users';
+    var url = 'https://intelliguardsg.azurewebsites.net/api/Data/Users';
     final response = await http.post(url,
         headers: {
           "Accept": "application/json",
@@ -61,7 +61,7 @@ class _GuestSUState extends State<GuestSU> {
   }
 
   Future<String> uploadPhoto(String path) async {
-    var url = 'https://maddintelliguard.azurewebsites.net/api/UploadOnePhoto';
+    var url = 'https://intelliguardsg.azurewebsites.net/api/UploadOnePhoto';
     List<int> byteData = await File(path).readAsBytes();
     FormData data = FormData.fromMap({
       'photo': MultipartFile.fromBytes(
@@ -86,7 +86,7 @@ class _GuestSUState extends State<GuestSU> {
     print(path);
 
     var url =
-        'http://maddintelliguard.azurewebsites.net/api/multifacesignup?id=$id&PathInURL=$path';
+        'https://intelliguardsg.azurewebsites.net/api/multifacesignup?id=$id&PathInURL=$path';
     print(url);
     Dio dio = new Dio();
     Response response = await dio.post(url);
