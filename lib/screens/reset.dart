@@ -36,7 +36,7 @@ class Reset extends StatelessWidget {
                   OutlineInputBorder(borderRadius: BorderRadius.circular(32.0)),
             ),
           ),
-          SizedBox(height: 20),
+          SizedBox(height: 100),
           Padding(
             padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
             child: FlatButton(
