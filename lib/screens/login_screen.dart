@@ -9,6 +9,7 @@ import 'package:intelliguard/screens/homepage.dart';
 
 import '../models/user.dart';
 import '../screens/guest_register.dart';
+import '../screens/reset.dart';
 
 class LoginPage extends StatefulWidget {
   static const routeName = '/login';
@@ -123,6 +124,15 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   onPressed: () {
                     Navigator.of(context).pushNamed(GuestSU.routeName);
+                  },
+                ),
+                FlatButton(
+                  child: Text(
+                    'Forget Password?',
+                    style: TextStyle(color: Colors.black54),
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).pushNamed(Reset.routeName);
                   },
                 )
               ],

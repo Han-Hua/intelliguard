@@ -12,6 +12,7 @@ import 'package:path_provider/path_provider.dart';
 
 import 'take_photo.dart';
 import '../models/user.dart';
+import '../screens/guide.dart';
 
 class GuestSU extends StatefulWidget {
   static const routeName = '/guest_signup';
@@ -50,7 +51,6 @@ class _GuestSUState extends State<GuestSU> {
         },
         body: convert.jsonEncode({
           "UserName": userId.text,
-          "FullName": fullName.text,
           "UserPw": userPw.text,
           "UPhotoPath": file,
           "UserContact": int.parse(contact.text),
@@ -146,7 +146,7 @@ class _GuestSUState extends State<GuestSU> {
                   if (provider.getUser().paths != null) {
                     provider.disposePhotos();
                   }
-                  Navigator.of(context).pushNamed(CameraScreen.routeName);
+                  Navigator.of(context).pushNamed(Guide.routeName);
                 },
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30),

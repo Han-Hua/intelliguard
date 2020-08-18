@@ -17,6 +17,8 @@ import 'screens/guest_register.dart';
 import 'screens/show_entries.dart';
 import 'screens/startup_screen.dart';
 import 'screens/take_photo.dart';
+import 'screens/guide.dart';
+import 'screens/reset.dart';
 
 Future<void> main() async {
   // Ensure that plugin services are initialized so that `availableCameras()`
@@ -26,13 +28,12 @@ Future<void> main() async {
   // Obtain a list of the available cameras on the device.
   final cameras = await availableCameras();
 
-  
-
-  runApp(MyApp(camera: cameras,));
+  runApp(MyApp(
+    camera: cameras,
+  ));
 }
 
 class MyApp extends StatelessWidget {
-
   final List<CameraDescription> camera;
 
   MyApp({@required this.camera});
@@ -41,8 +42,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider.value(value: EntryHistory()
-        ),
+        ChangeNotifierProvider.value(value: EntryHistory()),
         ChangeNotifierProvider.value(value: Users()),
         ChangeNotifierProvider.value(value: CreateUser()),
         ChangeNotifierProvider.value(value: Verified()),
@@ -54,12 +54,16 @@ class MyApp extends StatelessWidget {
         ),
         routes: {
           LoginPage.routeName: (ctx) => LoginPage(),
-          ShowEntries.routeName:  (ctx) => ShowEntries(),
+          ShowEntries.routeName: (ctx) => ShowEntries(),
           GuestSU.routeName: (ctx) => GuestSU(),
           Startup.routeName: (ctx) => Startup(),
-          CameraScreen.routeName: (ctx) => CameraScreen(cameras: camera,),
-          Homepage.routeName:(ctx) => Homepage(),
-          ScanBeacon.routeName:(ctx) => ScanBeacon(),
+          CameraScreen.routeName: (ctx) => CameraScreen(
+                cameras: camera,
+              ),
+          Homepage.routeName: (ctx) => Homepage(),
+          ScanBeacon.routeName: (ctx) => ScanBeacon(),
+          Guide.routeName: (ctx) => Guide(),
+          Reset.routeName: (ctx) => Reset(),
         },
       ),
     );

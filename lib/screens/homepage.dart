@@ -17,22 +17,21 @@ class _HomepageState extends State<Homepage> {
     return DefaultTabController(
       length: choices.length,
       child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.lightBlue,
-          title: Text('Intelliguard'),
-          bottom: TabBar(
-            tabs: choices.map((Choice choice){
-              return Tab(
+          appBar: AppBar(
+            backgroundColor: Colors.lightBlue,
+            title: Text('Intelliguard'),
+            bottom: TabBar(
+              tabs: choices.map((Choice choice) {
+                return Tab(
                   text: choice.title,
                   icon: Icon(choice.icon),
-              );
-            }).toList(),
+                );
+              }).toList(),
+            ),
           ),
-        ),
-        body: TabBarView(
-          children: <Widget>[ShowEntries(), News(), Chart(), ScanBeacon()],
-        )
-      ),
+          body: TabBarView(
+            children: <Widget>[ShowEntries(), News(), Chart(), ScanBeacon()],
+          )),
     );
   }
 }

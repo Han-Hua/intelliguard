@@ -8,7 +8,10 @@ import 'package:flutter_beacon/flutter_beacon.dart';
 import '../models/tracing_info.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
 import 'dart:convert' as convert;
+import 'login_screen.dart';
+import 'package:intl/intl.dart';
 
 class ScanBeacon extends StatefulWidget {
   static const routeName = '/scan';
@@ -33,14 +36,16 @@ class _MyAppState extends State<ScanBeacon> with WidgetsBindingObserver {
   String checkStatus = "";
 
   Future<String> contactTracing(TracingInfo a) async {
-    String url =
-        'https://intelliguardsg.azurewebsites.net/api/Entry/addTracing';
+    String url = 'http://intelliguardsg.azurewebsites.net/api/Entry/addTracing';
 
     var month = a.entrytime.month.toString().padLeft(2, '0');
+
     var day = a.entrytime.day.toString().padLeft(2, '0');
-    var min = a.entrytime.minute.toString().padLeft(2, "0");
+    var hr = a.entrytime.hour..toString().padLeft(2, '0');
+    var min = a.entrytime.minute.toString().padLeft(2, '0');
+    var sec = a.entrytime.second.toString().padLeft(2, '0');
     var entryD = '${a.entrytime.year}-$month-$day';
-    var entryT = 'T${a.entrytime.hour}:$min:${a.entrytime.second}';
+    var entryT = 'T$hr:$min:$sec';
     var entrytime = entryD + entryT;
     print(entrytime);
     final response = await http.post(url,
@@ -57,7 +62,7 @@ class _MyAppState extends State<ScanBeacon> with WidgetsBindingObserver {
         }));
 
     print("statuscode: ${response.statusCode}");
-    print(DateTime.now().toString());
+    print(entrytime);
     return (response.body);
   }
 
@@ -129,7 +134,7 @@ class _MyAppState extends State<ScanBeacon> with WidgetsBindingObserver {
         authorizationStatus == AuthorizationStatus.allowed ||
             authorizationStatus == AuthorizationStatus.always;
     final locationServiceEnabled =
-    await flutterBeacon.checkLocationServicesIfEnabled;
+        await flutterBeacon.checkLocationServicesIfEnabled;
 
     setState(() {
       this.authorizationStatusOk = authorizationStatusOk;
@@ -169,48 +174,48 @@ class _MyAppState extends State<ScanBeacon> with WidgetsBindingObserver {
 
     _streamRanging =
         flutterBeacon.ranging(regions).listen((RangingResult result) {
-          print(result);
-          if (result != null && mounted) {
-            setState(() {
-              _regionBeacons[result.region] = result.beacons;
+      print(result);
+      if (result != null && mounted) {
+        setState(() {
+          _regionBeacons[result.region] = result.beacons;
 
-              _regionBeacons.values.forEach((list) {
-                list.forEach((element) {
-                  if (element.accuracy < 0.03) {
-                    if (element.proximityUUID ==
-                        'B9407F30-F5F8-466E-AFF9-25556B57FE6D') {
-                      status = 'Check-IN';
-                      if (status != checkStatus) {
-                        checkStatus = status;
+          _regionBeacons.values.forEach((list) {
+            list.forEach((element) {
+              if (element.accuracy < 0.03) {
+                if (element.proximityUUID ==
+                    'B9407F30-F5F8-466E-AFF9-25556B57FE6D') {
+                  status = 'Check-IN';
+                  if (status != checkStatus) {
+                    checkStatus = status;
 
-                        TracingInfo record = new TracingInfo(
-                            location, _nric, _contact, status, DateTime.now());
-                        contactTracing(record);
-                        print(record.status);
-                        _beacons.clear();
-                        _beacons.add(element);
-                      }
-                    } else if (element.proximityUUID ==
-                        '7B8C48A1-6287-FE3C-F194-C99FA98C3AA3') {
-                      status = 'Check-Out';
-                      if (status != checkStatus) {
-                        checkStatus = status;
-
-                        TracingInfo record = new TracingInfo(
-                            location, _nric, _contact, status, DateTime.now());
-                        contactTracing(record);
-                        print(record.status);
-                        _beacons.clear();
-                        _beacons.add(element);
-                      }
-                    }
+                    TracingInfo record = new TracingInfo(
+                        location, _nric, _contact, status, DateTime.now());
+                    contactTracing(record);
+                    print(record.status);
+                    _beacons.clear();
+                    _beacons.add(element);
                   }
-                });
-              });
-              _beacons.sort(_compareParameters);
+                } else if (element.proximityUUID ==
+                    '7B8C48A1-6287-FE3C-F194-C99FA98C3AA3') {
+                  status = 'Check-Out';
+                  if (status != checkStatus) {
+                    checkStatus = status;
+
+                    TracingInfo record = new TracingInfo(
+                        location, _nric, _contact, status, DateTime.now());
+                    contactTracing(record);
+                    print(record.status);
+                    _beacons.clear();
+                    _beacons.add(element);
+                  }
+                }
+              }
             });
-          }
+          });
+          _beacons.sort(_compareParameters);
         });
+      }
+    });
   }
 
   pauseScanBeacon() async {
@@ -340,29 +345,29 @@ class _MyAppState extends State<ScanBeacon> with WidgetsBindingObserver {
           child: _beacons == null || _beacons.isEmpty
               ? Center(child: CircularProgressIndicator())
               : ListView(
-            children: ListTile.divideTiles(
-                context: context,
-                tiles: _beacons.map((beacon) {
-                  return ListTile(
-                    title: Text(location),
-                    subtitle: new Row(
-                      mainAxisSize: MainAxisSize.max,
-                      children: <Widget>[
-                        Flexible(
-                            child: Text('$status',
-                                style: TextStyle(fontSize: 13.0)),
-                            flex: 1,
-                            fit: FlexFit.tight),
-                        Flexible(
-                            child: Text('$_nric',
-                                style: TextStyle(fontSize: 13.0)),
-                            flex: 2,
-                            fit: FlexFit.tight)
-                      ],
-                    ),
-                  );
-                })).toList(),
-          ),
+                  children: ListTile.divideTiles(
+                      context: context,
+                      tiles: _beacons.map((beacon) {
+                        return ListTile(
+                          title: Text(location),
+                          subtitle: new Row(
+                            mainAxisSize: MainAxisSize.max,
+                            children: <Widget>[
+                              Flexible(
+                                  child: Text('$status',
+                                      style: TextStyle(fontSize: 13.0)),
+                                  flex: 1,
+                                  fit: FlexFit.tight),
+                              Flexible(
+                                  child: Text('$_nric',
+                                      style: TextStyle(fontSize: 13.0)),
+                                  flex: 2,
+                                  fit: FlexFit.tight)
+                            ],
+                          ),
+                        );
+                      })).toList(),
+                ),
         )
       ],
     );

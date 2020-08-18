@@ -120,24 +120,23 @@ class _CameraScreenState extends State<CameraScreen>
                                     color: Colors.grey.withOpacity(0.7),
                                   )),
                                 ),
-                                Align(
+                                /*Align(
                                   alignment: FractionalOffset.center,
-                                  child: Column(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceEvenly,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: <Widget>[
-                                      Text(
-                                        "Ensure that your entire face is visible\n and lighting is sufficient\n\n\nDuring photo-taking,\n Tilt your face following the circle",
-                                        textAlign: TextAlign.center,
-                                        style: TextStyle(
-                                            fontSize: 20.0,
-                                            color: Colors.white),
-                                      ),
-                                    ],
+                                  child: Container(
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceEvenly,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: <Widget>[
+                                        Image.asset('images/faces.gif'),
+                                        Text('Tilt your face accordingly while timer is running\bEnsure that there is sufficient lighting'),
+                                      ],
+                                    ),
                                   ),
                                 ),
+
+                                 */
                               ],
                             ),
                           ),
@@ -172,21 +171,21 @@ class _CameraScreenState extends State<CameraScreen>
                   List<String> paths = new List<String>();
 
                   while (controller.isAnimating) {
-                  // Construct the path where the image should be saved using the
-                  // pattern package.
-                  final path = join(
-                    // Store the picture in the temp directory.
-                    // Find the temp directory using the `path_provider` plugin.
-                    (await getTemporaryDirectory()).path,
-                    //'${DateTime.now()}.png',
-                    '${DateTime.now()}',
-                  );
-                  print(path);
+                    // Construct the path where the image should be saved using the
+                    // pattern package.
+                    final path = join(
+                      // Store the picture in the temp directory.
+                      // Find the temp directory using the `path_provider` plugin.
+                      (await getTemporaryDirectory()).path,
+                      //'${DateTime.now()}.png',
+                      '${DateTime.now()}',
+                    );
+                    print(path);
 
-                  // Attempt to take a picture and log where it's been saved.
-                  await _controller.takePicture(path);
+                    // Attempt to take a picture and log where it's been saved.
+                    await _controller.takePicture(path);
 
-                  paths.add(path);
+                    paths.add(path);
                   }
 
                   final users = Provider.of<CreateUser>(context, listen: false);
@@ -222,7 +221,7 @@ class DisplayScreen extends StatelessWidget {
             SizedBox(height: 400),
             Center(
               child: Text(
-                'Face Scanning Complete!',
+                'Face Scanning Complete!',textAlign: TextAlign.center,
                 style: TextStyle(
                     fontFamily: 'Poppins',
                     fontSize: 32.0,
@@ -232,7 +231,7 @@ class DisplayScreen extends StatelessWidget {
             SizedBox(height: 50),
             FlatButton(
               child: Text(
-                'Click to proceed!',
+                'Click to return to sign up page',
                 style: TextStyle(
                     fontFamily: 'Poppins',
                     fontSize: 18.0,
