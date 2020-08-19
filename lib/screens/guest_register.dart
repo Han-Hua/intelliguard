@@ -27,6 +27,7 @@ class _GuestSUState extends State<GuestSU> {
   final userPw = TextEditingController();
   final fullName = TextEditingController();
   final contact = TextEditingController();
+  final nric = TextEditingController();
 
   List<String> fileName = new List<String>();
 
@@ -35,7 +36,7 @@ class _GuestSUState extends State<GuestSU> {
     print(userId.text);
     print(userPw.text);
     print(contact.text);
-    if (userId.text.isEmpty || userPw.text.isEmpty || contact.text.isEmpty) {
+    if (userId.text.isEmpty || userPw.text.isEmpty || contact.text.isEmpty || nric.text.isEmpty || fullName.text.isEmpty) {
       return false;
     } else {
       return true;
@@ -52,8 +53,10 @@ class _GuestSUState extends State<GuestSU> {
         body: convert.jsonEncode({
           "UserName": userId.text,
           "UserPw": userPw.text,
+          "FullName": fullName.text,
           "UPhotoPath": file,
           "UserContact": int.parse(contact.text),
+          "nric": nric.text
         }));
     print("Create User Status: ${response.statusCode}");
     print("Response Body: ${response.body}");
@@ -193,6 +196,17 @@ class _GuestSUState extends State<GuestSU> {
                 autofocus: false,
                 decoration: InputDecoration(
                   hintText: 'Contact No.',
+                  contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(32.0)),
+                ),
+              ),
+              SizedBox(height: 16.0),
+              TextFormField(
+                controller: nric,
+                autofocus: false,
+                decoration: InputDecoration(
+                  hintText: 'NRIC',
                   contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
                   border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(32.0)),
